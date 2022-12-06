@@ -5,15 +5,19 @@
 // 	"os"
 // 	"sort"
 // 	"strconv"
+
+//	log "github.com/sirupsen/logrus"
 // )
 
 // type DayX struct {
 // 	InputFile string
+//  Logger    *log.Logger
 // }
 
-// func NewDayXSolver(inputFile string) Solver {
+// func NewDayXSolver(inputFile string, logger *log.Logger) Solver {
 // 	day1Solver := new(DayX)
 // 	day1Solver.InputFile = inputFile
+//  day4Solver.Logger = logger
 
 // 	return day1Solver
 // }
