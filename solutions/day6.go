@@ -3,7 +3,6 @@ package solutions
 import (
 	"bufio"
 	"os"
-	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -66,9 +65,12 @@ func (d *Day6) solve(dataStream string, endIdx int) (int, string) {
 }
 
 func (d *Day6) hasRepeats(chunk string) bool {
+	set := make(map[string]int)
 	for i := 0; i < len(chunk); i++ {
 		c := chunk[i]
-		if strings.Count(chunk, string(c)) > 1 {
+		if _, ok := set[string(c)]; !ok {
+			set[string(c)] = 1
+		} else {
 			return true
 		}
 	}
