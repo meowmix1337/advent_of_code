@@ -5,8 +5,8 @@ import (
 )
 
 type Answers struct {
-	Answer1  int         `json:"answer1"`
-	Answer2  int         `json:"answer2"`
+	Answer1  interface{} `json:"answer1"`
+	Answer2  interface{} `json:"answer2"`
 	MetaData interface{} `json:"metaData"`
 }
 
@@ -25,6 +25,8 @@ func GetDaySolver(dayNumber int, inputFile string, logger *log.Logger) Solver {
 		daySolver = NewDay3Solver(inputFile, logger)
 	case 4:
 		daySolver = NewDay4Solver(inputFile, logger)
+	case 5:
+		daySolver = NewDay5Solver(inputFile, logger)
 	}
 
 	return daySolver
