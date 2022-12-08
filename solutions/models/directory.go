@@ -10,6 +10,7 @@ type Directory struct {
 	Name        string                `json:"name"`
 	Files       []File                `json:"files"`
 	Directories map[string]*Directory `json:"directories"`
+	Parent      *Directory            `json:"-"`
 }
 
 func NewDirectory(name string) *Directory {
@@ -29,10 +30,12 @@ func (d *Directory) SumAtMost100000AndFindRequired(required int) (int, []int) {
 }
 
 func Traverse(dir Directory, totalSize, required int, greaterThanRequired []int) (int, []int) {
+	// part 1
 	if dir.TotalSize <= 100000 {
 		totalSize += dir.TotalSize
 	}
 
+	// part 2
 	if dir.TotalSize >= required {
 		greaterThanRequired = append(greaterThanRequired, dir.TotalSize)
 	}
