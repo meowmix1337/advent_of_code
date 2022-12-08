@@ -32,17 +32,15 @@ func (d *Day7) Solve() (*Answers, error) {
 	}
 	defer file.Close()
 
-	directoryStack := models.DirectoryStack{}
-
-	startingStack := models.Directory{
+	root := &models.Directory{
 		Name:        "/",
 		Files:       make([]models.File, 0),
 		Directories: make(map[string]*models.Directory),
 		TotalSize:   0,
+		Parent:      nil,
 	}
 
-	directoryStack.Push(&startingStack)
-	rootDir := BuildFileStructure(file, directoryStack)
+	rootDir := BuildFileStructure(file, root)
 
 	// total needed to meet 30,000,000
 	// total space 70,000,000
@@ -61,8 +59,8 @@ func (d *Day7) Solve() (*Answers, error) {
 	}, nil
 }
 
-func BuildFileStructure(file *os.File, directoryStack models.DirectoryStack) *models.Directory {
-	currentDir := directoryStack.Peek()
+func BuildFileStructure(file *os.File, root *models.Directory) *models.Directory {
+	currentDir := root
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -70,20 +68,16 @@ func BuildFileStructure(file *os.File, directoryStack models.DirectoryStack) *mo
 		cmd := strings.Split(line, " ")
 		if cmd[0] == "$" {
 			if cmd[1] == "cd" {
-				// we don't care about root
 				if cmd[2] == "/" {
-					continue
-				}
-
-				if cmd[2] == ".." {
-					// if .., pop from the stack
-					directoryStack.Pop()
+					currentDir = root
+				} else if cmd[2] == ".." {
+					// go back one
+					currentDir = currentDir.Parent
 				} else {
-					// go deeper from current directory
-					directoryStack.Push(currentDir.Directories[cmd[2]])
+					// set parent before we move down one level
+					currentDir.Directories[cmd[2]].Parent = currentDir
+					currentDir = currentDir.Directories[cmd[2]]
 				}
-				// set the current directory to top of stack
-				currentDir = directoryStack.Peek()
 			}
 
 			// do LS action...noop
@@ -103,18 +97,15 @@ func BuildFileStructure(file *os.File, directoryStack models.DirectoryStack) *mo
 			currentDir.Files = append(currentDir.Files, file)
 			currentDir.TotalSize += size
 
-			totalStackSize := directoryStack.Size()
-
-			for totalStackSize != 1 {
-				// keep going back and add the size until we get to root directory (include root though)
-				previousDirectory := directoryStack.Seek(totalStackSize)
-				previousDirectory.TotalSize += size
-				totalStackSize--
+			// keep adding the size to parent directories until we get to root (add size to root though)
+			temp := currentDir
+			for temp.Parent != nil {
+				parent := temp.Parent
+				parent.TotalSize += size
+				temp = temp.Parent
 			}
-
 		}
 	}
 
-	currentDir = directoryStack[0]
-	return currentDir
+	return root
 }
