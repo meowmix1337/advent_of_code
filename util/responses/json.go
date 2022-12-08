@@ -12,8 +12,8 @@ type returnData struct {
 }
 
 type errData struct {
-	Status int   `json:"status"`
-	Error  error `json:"error"`
+	Status int    `json:"status"`
+	Error  string `json:"error"`
 }
 
 // JSON .
@@ -34,7 +34,7 @@ func Error(w http.ResponseWriter, statusCode int, err error) {
 	w.Header().Set("Content-Type", "application/json")
 	errJson := json.NewEncoder(w).Encode(errData{
 		Status: statusCode,
-		Error:  err,
+		Error:  err.Error(),
 	})
 	if errJson != nil {
 		fmt.Fprintf(w, "%s", err.Error())

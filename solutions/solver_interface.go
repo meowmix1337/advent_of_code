@@ -15,25 +15,24 @@ type Solver interface {
 }
 
 func GetDaySolver(dayNumber int, inputFile string, logger *log.Logger) Solver {
-	var daySolver Solver
 	switch dayNumber {
 	case 1:
-		daySolver = NewDay1Solver(inputFile)
+		return NewDay1Solver(inputFile)
 	case 2:
-		daySolver = NewDay2Solver(inputFile)
+		return NewDay2Solver(inputFile)
 	case 3:
-		daySolver = NewDay3Solver(inputFile, logger)
+		return NewDay3Solver(inputFile, logger)
 	case 4:
-		daySolver = NewDay4Solver(inputFile, logger)
+		return NewDay4Solver(inputFile, logger)
 	case 5:
-		daySolver = NewDay5Solver(inputFile, logger)
+		return NewDay5Solver(inputFile, logger)
 	case 6:
-		daySolver = NewDay6Solver(inputFile, logger)
+		return NewDay6Solver(inputFile, logger)
 	case 7:
-		daySolver = NewDay7Solver(inputFile, logger)
+		return NewDay7Solver(inputFile, logger)
 	case 8:
-		daySolver = NewDay8Solver(inputFile, logger)
+		return NewDay8Solver(inputFile, logger)
 	}
 
-	return daySolver
+	return nil
 }

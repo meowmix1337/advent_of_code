@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -35,8 +36,13 @@ func main() {
 				responses.Error(w, http.StatusInternalServerError, err)
 			}
 
-			inputFile := fmt.Sprintf("../inputfiles/day%v/input.txt", dayNumber)
+			inputFile := fmt.Sprintf("inputfiles/day%v/input.txt", dayNumber)
+
 			daySolver := solutions.GetDaySolver(dayNumber, inputFile, logger)
+			if daySolver == nil {
+				responses.Error(w, http.StatusNotFound, errors.New(fmt.Sprintf("day %v solver not found!", dayNumber)))
+				return
+			}
 
 			dayAnswers, err := daySolver.Solve()
 			if err != nil {
