@@ -47,7 +47,7 @@ export class AppComponent {
     description: 'Find the best location for the tree house!'
   },{
     dayNumber: 9,
-    title: 'X',
-    description: 'X'
+    title: 'Rope Bridge',
+    description: 'Snake'
   }];
 }

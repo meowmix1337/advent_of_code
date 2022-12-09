@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { DataService, Data, AdventResponse } from 'src/app/services/data.service';
 import { finalize } from 'rxjs/operators';
 
@@ -8,7 +8,7 @@ import { finalize } from 'rxjs/operators';
   styleUrls: ['./advent-card.component.scss']
 })
 
-export class AdventCardComponent {
+export class AdventCardComponent implements OnInit {
   answers: Data|null = null;
   error: string = '';
 
@@ -19,7 +19,7 @@ export class AdventCardComponent {
 
   constructor(private adventAPI: DataService) {}
 
-  loadData() {
+  ngOnInit() {
     this.loading = true;
     this.adventAPI.getDayAnswer(this.day).pipe(
       finalize(() => this.loading = false)
