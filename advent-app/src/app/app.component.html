@@ -1,11 +1,10 @@
 <div class="base">
   <div class="center">
-    <div *ngFor="let day of days">
-      <app-advent-card style="margin: 5px;" [day]="day.dayNumber" [title]="day.title" [description]="day.description">
-    
-      </app-advent-card>
-    </div>
-  </div>
+    <mat-grid-list cols="2" rowHeight="2:1">
+      <mat-grid-tile *ngFor="let day of days">
+        <app-advent-card class="advent-card" [day]="day.dayNumber" [title]="day.title" [description]="day.description"></app-advent-card>
+      </mat-grid-tile>
+    </mat-grid-list>
 </div>
 
 
