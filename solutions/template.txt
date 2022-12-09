@@ -1,41 +1,39 @@
-// package solutions
+package solutions
 
-// import (
-// 	"bufio"
-// 	"os"
-// 	"sort"
-// 	"strconv"
+import (
+	"bufio"
+	"os"
 
-//	log "github.com/sirupsen/logrus"
-// )
+	log "github.com/sirupsen/logrus"
+)
 
-// type DayX struct {
-// 	InputFile string
-//  Logger    *log.Logger
-// }
+type DayX struct {
+	InputFile string
+ 	Logger    *log.Logger
+}
 
-// func NewDayXSolver(inputFile string, logger *log.Logger) Solver {
-// 	day1Solver := new(DayX)
-// 	day1Solver.InputFile = inputFile
-//  day4Solver.Logger = logger
+func NewDayXSolver(inputFile string, logger *log.Logger) Solver {
+	dayXSolver := new(DayX)
+	dayXSolver.InputFile = inputFile
+ 	dayXSolver.Logger = logger
 
-// 	return day1Solver
-// }
+	return dayXSolver
+}
 
-// func (d *DayX) Solve() (*Answers, error) {
-// 	file, err := os.Open(d.InputFile)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer file.Close()
+func (d *DayX) Solve() (*Answers, error) {
+	file, err := os.Open(d.InputFile)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
 
-// 	scanner := bufio.NewScanner(file)
-// 	for scanner.Scan() {
-// 		line := scanner.Text()
-// 	}
-// 	return &Answers{
-// 		Answer1:  0,
-// 		Answer2:  0,
-// 		MetaData: nil,
-// 	}, nil
-// }
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+	}
+	return &Answers{
+		Answer1:  0,
+		Answer2:  0,
+		MetaData: nil,
+	}, nil
+}
