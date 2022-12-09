@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	log "github.com/sirupsen/logrus"
 
 	"advent/solutions"
@@ -23,6 +23,19 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
+
+	// Basic CORS
+	// for more ideas, see: https://developer.github.com/v3/#cross-origin-resource-sharing
+	r.Use(cors.Handler(cors.Options{
+		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		AllowedOrigins: []string{"https://*", "http://*"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
 
 	logger := log.New()
 	logger.Formatter = &log.JSONFormatter{}
@@ -40,7 +53,7 @@ func main() {
 
 			daySolver := solutions.GetDaySolver(dayNumber, inputFile, logger)
 			if daySolver == nil {
-				responses.Error(w, http.StatusNotFound, errors.New(fmt.Sprintf("day %v solver not found!", dayNumber)))
+				http.Error(w, fmt.Sprintf("day %v solver not found!", dayNumber), http.StatusNotFound)
 				return
 			}
 
