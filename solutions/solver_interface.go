@@ -37,6 +37,8 @@ func GetDaySolver(dayNumber int, inputFile string, logger *log.Logger) Solver {
 		daySolver = NewDay9Solver(inputFile, logger)
 	case 10:
 		daySolver = NewDay10Solver(inputFile, logger)
+	case 11:
+		daySolver = NewDay11Solver(inputFile, logger)
 	}
 
 	return daySolver
