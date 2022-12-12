@@ -6,6 +6,8 @@ type Item struct {
 	WorryLevel int `json:"worryLevel"`
 }
 
+type ItemQueue []Item
+
 func (i *Item) MonkeyIsBored() {
 	i.WorryLevel = int(math.Floor(float64(i.WorryLevel) / 3))
 }
@@ -23,4 +25,22 @@ func NewItem(worryLevel int) *Item {
 	return &Item{
 		WorryLevel: worryLevel,
 	}
+}
+
+func NewItemQueue() *ItemQueue {
+	return &ItemQueue{}
+}
+
+func (q *ItemQueue) IsEmpty() bool {
+	return len(*q) == 0
+}
+
+func (q *ItemQueue) Dequeue() Item {
+	item := (*q)[0]
+	*q = (*q)[1:]
+	return item
+}
+
+func (q *ItemQueue) Enqueue(item Item) {
+	*q = append(*q, item)
 }
