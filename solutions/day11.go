@@ -72,7 +72,7 @@ func (d *Day11) BuildMonkeys() (*models.Monkeys, error) {
 			for _, worryLevel := range worryLevels {
 				worryLevelInt, _ := strconv.Atoi(worryLevel)
 				newItem := models.NewItem(worryLevelInt)
-				curMonkey.Items = append(curMonkey.Items, *newItem)
+				curMonkey.Items.Enqueue(*newItem)
 			}
 		}
 
