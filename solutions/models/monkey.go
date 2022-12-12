@@ -2,7 +2,7 @@ package models
 
 type Monkey struct {
 	ID              int                 `json:"id"`
-	Items           []Item              `json:"items"`
+	Items           *ItemQueue          `json:"items"`
 	Operation       func(int, int) int  `json:"-"`
 	OperationNumber int                 `json:"operationNumber"`
 	Test            func(int, int) bool `json:"-"`
@@ -15,12 +15,13 @@ type Monkey struct {
 func NewMonkey(id int) *Monkey {
 	return &Monkey{
 		ID:    id,
-		Items: make([]Item, 0),
+		Items: NewItemQueue(),
 	}
 }
 
 func (m *Monkey) Inspect(monkeys []*Monkey, skipBored bool, commonDivisor int) {
-	for _, item := range m.Items {
+	for !m.Items.IsEmpty() {
+		item := m.Items.Dequeue()
 		m.ItemsInspected++
 
 		item.CalcNewLevel(m.Operation, m.OperationNumber)
@@ -37,14 +38,8 @@ func (m *Monkey) Inspect(monkeys []*Monkey, skipBored bool, commonDivisor int) {
 			m.ThrowToMonkey(m.TestFailMonkey, item, monkeys)
 		}
 	}
-
-	m.EmptyItems()
 }
 
 func (m *Monkey) ThrowToMonkey(throwTo int, item Item, monkeys []*Monkey) {
-	monkeys[throwTo].Items = append(monkeys[throwTo].Items, item)
-}
-
-func (m *Monkey) EmptyItems() {
-	m.Items = []Item{}
+	monkeys[throwTo].Items.Enqueue(item)
 }
