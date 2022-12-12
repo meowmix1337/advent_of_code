@@ -2,114 +2,19 @@ package solutions
 
 import (
 	"bufio"
-	"math"
 	"os"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
+
+	"advent/solutions/models"
 )
 
 type Day11 struct {
 	InputFile string
 	Logger    *log.Logger
-}
-
-type Monkey struct {
-	ID              int                 `json:"id"`
-	Items           []Item              `json:"items"`
-	Operation       func(int, int) int  `json:"-"`
-	OperationNumber int                 `json:"operationNumber"`
-	Test            func(int, int) bool `json:"-"`
-	DisivibleBy     int                 `json:"divisibleBy"`
-	TestFailMonkey  int                 `json:"testFailMonkey"`
-	TestPassMonkey  int                 `json:"testPassMonkey"`
-	ItemsInspected  int                 `json:"itemsInspected"`
-}
-
-func (m *Monkey) Inspect(monkeys []*Monkey, skipBored bool) {
-	for _, item := range m.Items {
-		m.ItemsInspected++
-
-		item.CalcNewLevel(m.Operation, m.OperationNumber)
-
-		if !skipBored {
-			item.MonkeyIsBored()
-		} else {
-
-		}
-
-		if m.Test(item.WorryLevel, m.DisivibleBy) {
-			m.ThrowToMonkey(m.TestPassMonkey, item, monkeys)
-		} else {
-			m.ThrowToMonkey(m.TestFailMonkey, item, monkeys)
-		}
-	}
-
-	m.EmptyItems()
-}
-
-func (m *Monkey) ThrowToMonkey(throwTo int, item Item, monkeys []*Monkey) {
-	monkeys[throwTo].Items = append(monkeys[throwTo].Items, item)
-}
-
-func NewMonkey(id int) *Monkey {
-	return &Monkey{
-		ID:    id,
-		Items: make([]Item, 0),
-	}
-}
-
-func (m *Monkey) EmptyItems() {
-	m.Items = []Item{}
-}
-
-type Item struct {
-	WorryLevel int `json:"worryLevel"`
-}
-
-func (i *Item) MonkeyIsBored() {
-	i.WorryLevel = int(math.Floor(float64(i.WorryLevel) / 3))
-}
-
-func (i *Item) CalcNewLevel(operation func(int, int) int, operationNumber int) {
-	// get new number by new = old * operation number
-	// if operation number is 0, then use the worry level
-	if operationNumber == 0 {
-		operationNumber = i.WorryLevel
-	}
-	i.WorryLevel = operation(i.WorryLevel, operationNumber)
-}
-
-func NewItem(worryLevel int) *Item {
-	return &Item{
-		WorryLevel: worryLevel,
-	}
-}
-
-type Monkeys []*Monkey
-
-func (m *Monkeys) DoRound(skipBored bool) {
-	for _, monkey := range *m {
-		monkey.Inspect(*m, skipBored)
-	}
-}
-
-func (m *Monkeys) AddMonkey(monkey *Monkey) {
-	*m = append(*m, monkey)
-}
-
-func (m *Monkeys) CalculateMonkeyBusiness() int {
-	itemsInspected := make([]int, 0)
-	for _, monkey := range *m {
-		itemsInspected = append(itemsInspected, monkey.ItemsInspected)
-	}
-
-	sort.Sort(sort.Reverse(sort.IntSlice(itemsInspected)))
-
-	return itemsInspected[0] * itemsInspected[1]
 }
 
 func NewDay11Solver(inputFile string, logger *log.Logger) Solver {
@@ -125,13 +30,8 @@ func (d *Day11) Solve() (*Answers, error) {
 	monkeys1, _ := d.BuildMonkeys()
 	monkeys2, _ := d.BuildMonkeys()
 
-	for round := 1; round <= 20; round++ {
-		monkeys1.DoRound(false)
-	}
-
-	for round := 1; round <= 10000; round++ {
-		monkeys2.DoRound(true)
-	}
+	monkeys1.DoRounds(20, false)
+	monkeys2.DoRounds(10000, true)
 
 	return &Answers{
 		Answer1:  monkeys1.CalculateMonkeyBusiness(),
@@ -140,7 +40,7 @@ func (d *Day11) Solve() (*Answers, error) {
 	}, nil
 }
 
-func (d *Day11) BuildMonkeys() (*Monkeys, error) {
+func (d *Day11) BuildMonkeys() (*models.Monkeys, error) {
 	file, err := os.Open(d.InputFile)
 	if err != nil {
 		return nil, err
@@ -150,8 +50,8 @@ func (d *Day11) BuildMonkeys() (*Monkeys, error) {
 	// get digits
 	re := regexp.MustCompile("[0-9]+")
 
-	monkeys := &Monkeys{}
-	var curMonkey *Monkey
+	monkeys := models.NewMonkeys()
+	var curMonkey *models.Monkey
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -161,7 +61,7 @@ func (d *Day11) BuildMonkeys() (*Monkeys, error) {
 		if strings.Contains(line, "Monkey") {
 			// this is the monkey we're gathering information on
 			monkeyNum, _ := strconv.Atoi(re.FindAllString(line, -1)[0])
-			monkey := NewMonkey(monkeyNum)
+			monkey := models.NewMonkey(monkeyNum)
 			monkeys.AddMonkey(monkey)
 			curMonkey = monkey
 		}
@@ -171,7 +71,7 @@ func (d *Day11) BuildMonkeys() (*Monkeys, error) {
 			worryLevels := re.FindAllString(line, -1)
 			for _, worryLevel := range worryLevels {
 				worryLevelInt, _ := strconv.Atoi(worryLevel)
-				newItem := NewItem(worryLevelInt)
+				newItem := models.NewItem(worryLevelInt)
 				curMonkey.Items = append(curMonkey.Items, *newItem)
 			}
 		}
@@ -206,6 +106,7 @@ func (d *Day11) BuildMonkeys() (*Monkeys, error) {
 			curMonkey.Test = func(numToTest, divisibleBy int) bool {
 				return numToTest%divisibleBy == 0
 			}
+			monkeys.CommonDivisor *= divisibleBy
 		}
 
 		if strings.Contains(line, "If true:") {
