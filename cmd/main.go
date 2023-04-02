@@ -49,7 +49,7 @@ func main() {
 				responses.Error(w, http.StatusInternalServerError, err)
 			}
 
-			inputFile := fmt.Sprintf("inputfiles/day%v/input.txt", dayNumber)
+			inputFile := fmt.Sprintf("../inputfiles/day%v/input.txt", dayNumber)
 
 			daySolver := solutions.GetDaySolver(dayNumber, inputFile, logger)
 			if daySolver == nil {

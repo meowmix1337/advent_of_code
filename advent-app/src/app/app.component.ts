@@ -49,5 +49,9 @@ export class AppComponent {
     dayNumber: 9,
     title: 'Rope Bridge',
     description: 'Snake'
+  },{
+    dayNumber: 10,
+    title: 'Cathode-Ray Tube',
+    description: 'CRT and CPU cycles!'
   }];
 }
