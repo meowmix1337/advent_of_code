@@ -42,14 +42,21 @@ func main() {
 	logger.Out = os.Stdout
 	logger.Level = log.DebugLevel
 
-	r.Route("/advent", func(r chi.Router) {
-		r.Get("/day/{day}", func(w http.ResponseWriter, r *http.Request) {
+	r.Route("/advent/", func(r chi.Router) {
+		r.Get("/{year}/day/{day}", func(w http.ResponseWriter, r *http.Request) {
+			year, err := strconv.Atoi(chi.URLParam(r, "year"))
+			if err != nil {
+				responses.Error(w, http.StatusInternalServerError, err)
+			}
+
 			dayNumber, err := strconv.Atoi(chi.URLParam(r, "day"))
 			if err != nil {
 				responses.Error(w, http.StatusInternalServerError, err)
 			}
 
-			inputFile := fmt.Sprintf("../inputfiles/day%v/input.txt", dayNumber)
+			inputFile := fmt.Sprintf("inputfiles/%v/day%v.txt", year, dayNumber)
+
+			logger.Infof("input file: %v; year: %v; day: %v", inputFile, year, dayNumber)
 
 			daySolver := solutions.GetDaySolver(dayNumber, inputFile, logger)
 			if daySolver == nil {
@@ -68,6 +75,6 @@ func main() {
 	})
 
 	// start http server
-	logger.Info("Server is running!")
+	logger.Info("Server is running on port 8084!")
 	http.ListenAndServe(":8084", r)
 }
