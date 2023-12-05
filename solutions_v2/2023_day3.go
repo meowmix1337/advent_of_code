@@ -3,12 +3,25 @@ package solutionsv2
 import (
 	"bufio"
 	"fmt"
-	"log"
-	"log/slog"
 	"os"
 	"strconv"
 	"unicode"
+
+	log "github.com/sirupsen/logrus"
 )
+
+type Day3Solver struct {
+	*BaseSolver
+}
+
+func NewDay3Solver(baseSolver *BaseSolver, inputFile *os.File) Solver {
+	day := &Day3Solver{
+		BaseSolver: baseSolver,
+	}
+	day.InputFile = inputFile
+
+	return day
+}
 
 type Number struct {
 	Value    string
@@ -107,16 +120,8 @@ func (n *Number) isAdjacentToSymbol(symbolCol, symbolRow int) bool {
 	return true
 }
 
-func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-
-	file, err := os.Open("input/day3.txt")
-	if err != nil {
-		log.Fatalln("failed to open file", err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
+func (s Day3Solver) Solve() *Answers {
+	scanner := bufio.NewScanner(s.InputFile)
 
 	total1 := 0
 	total2 := 0
@@ -218,5 +223,13 @@ func main() {
 		}
 	}
 
-	logger.Info("answers", "part 1", total1, "part 2", total2)
+	s.Log.WithFields(log.Fields{
+		"Part1": total1,
+		"Part2": total2,
+	}).Info("Answers")
+
+	return &Answers{
+		Part1Answer: total1,
+		Part2Answer: total2,
+	}
 }

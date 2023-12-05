@@ -3,12 +3,12 @@ package solutionsv2
 import (
 	"bufio"
 	"fmt"
-	"log"
-	"log/slog"
 	"os"
 	"strconv"
 	"strings"
 	"unicode"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var spelledNumbers = []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"}
@@ -25,18 +25,21 @@ var numberMap = map[string]string{
 	"nine":  "9",
 }
 
-// TODO extract all this crap and create a base solver class that has a logger and input file
-// Then an interface that requires each day to implement Part1 and Part2 functions
-func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+type Day1Solver struct {
+	*BaseSolver
+}
 
-	file, err := os.Open("input.txt")
-	if err != nil {
-		log.Fatalln("failed to open file", err)
+func NewDay1Solver(baseSolver *BaseSolver, inputFile *os.File) Solver {
+	day := &Day1Solver{
+		BaseSolver: baseSolver,
 	}
-	defer file.Close()
+	day.InputFile = inputFile
 
-	scanner := bufio.NewScanner(file)
+	return day
+}
+
+func (s *Day1Solver) Solve() *Answers {
+	scanner := bufio.NewScanner(s.InputFile)
 
 	total1 := 0
 	total2 := 0
@@ -47,7 +50,15 @@ func main() {
 		total2 += part2(line)
 	}
 
-	logger.Info("answers", "part 1", total1, "part 2", total2)
+	s.Log.WithFields(log.Fields{
+		"Part1": total1,
+		"Part2": total2,
+	}).Info("Answers")
+
+	return &Answers{
+		Part1Answer: total1,
+		Part2Answer: total2,
+	}
 }
 
 func charIndexes(firstIdx, lastIdx int, line string) (int, int) {

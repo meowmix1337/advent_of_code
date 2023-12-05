@@ -13,6 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"advent/solutions"
+	solutionsv2 "advent/solutions_v2"
 	"advent/util/responses"
 )
 
@@ -42,17 +43,16 @@ func main() {
 	logger.Out = os.Stdout
 	logger.Level = log.DebugLevel
 
-	r.Route("/advent/", func(r chi.Router) {
-		r.Get("/{year}/day/{day}", func(w http.ResponseWriter, r *http.Request) {
-			year, err := strconv.Atoi(chi.URLParam(r, "year"))
-			if err != nil {
-				responses.Error(w, http.StatusInternalServerError, err)
-			}
+	solverService := solutionsv2.NewBaseSolver(logger)
 
+	r.Route("/advent/", func(r chi.Router) {
+		r.Get("/2022/day/{day}", func(w http.ResponseWriter, r *http.Request) {
 			dayNumber, err := strconv.Atoi(chi.URLParam(r, "day"))
 			if err != nil {
 				responses.Error(w, http.StatusInternalServerError, err)
 			}
+
+			year := 2022
 
 			inputFile := fmt.Sprintf("inputfiles/%v/day%v.txt", year, dayNumber)
 
@@ -69,6 +69,36 @@ func main() {
 				responses.Error(w, http.StatusInternalServerError, err)
 				return
 			}
+
+			responses.JSON(w, http.StatusOK, dayAnswers)
+		})
+
+		r.Get("/2023/day/{day}", func(w http.ResponseWriter, r *http.Request) {
+			dayNumber, err := strconv.Atoi(chi.URLParam(r, "day"))
+			if err != nil {
+				responses.Error(w, http.StatusInternalServerError, err)
+			}
+
+			year := 2023
+
+			inputFile := fmt.Sprintf("inputfiles/%v/day%v.txt", year, dayNumber)
+
+			logger.Infof("input file: %v; year: %v; day: %v", inputFile, year, dayNumber)
+
+			file, err := os.Open(inputFile)
+			if err != nil {
+				responses.Error(w, http.StatusInternalServerError, err)
+				return
+			}
+			defer file.Close()
+
+			daySolver := solutionsv2.GetDaySolver(solverService, dayNumber, file)
+			if daySolver == nil {
+				http.Error(w, fmt.Sprintf("day %v solver not found!", dayNumber), http.StatusNotFound)
+				return
+			}
+
+			dayAnswers := daySolver.Solve()
 
 			responses.JSON(w, http.StatusOK, dayAnswers)
 		})
