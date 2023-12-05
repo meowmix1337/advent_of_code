@@ -37,6 +37,8 @@ func GetDaySolver(baseSolver *BaseSolver, day int, inputFile *os.File) Solver {
 		daySolver = NewDay3Solver(baseSolver, inputFile)
 	case 4:
 		daySolver = NewDay4Solver(baseSolver, inputFile)
+	case 5:
+		daySolver = NewDay5Solver(baseSolver, inputFile)
 	}
 
 	return daySolver
