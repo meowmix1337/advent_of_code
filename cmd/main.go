@@ -33,16 +33,15 @@ func main() {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 
-	logger := log.New()
-	logger.Formatter = &log.JSONFormatter{}
-	logger.Out = os.Stdout
-	logger.Level = log.DebugLevel
-
+	logger := initializeLogger()
 	solverService := solutionsv2.NewBaseSolver(logger)
+
+	logger.Debug("initializing controllers")
 
 	controller2022 := controller.NewController2022(logger)
 	solverCtrl := controller.NewSolverController(logger, solverService)
 
+	logger.Debug("initializing routes")
 	r.Route("/"+controller.APIV1+"/advent/", func(r chi.Router) {
 		r.Get("/2022/{day}", controller2022.Solve2022Day)
 		r.Get("/{year}/{day}", solverCtrl.SolveDay)
@@ -51,4 +50,13 @@ func main() {
 	// start http server
 	logger.Info("Server is running on port 8084!")
 	http.ListenAndServe(":8084", r)
+}
+
+func initializeLogger() *log.Logger {
+	logger := log.New()
+	logger.Formatter = &log.JSONFormatter{}
+	logger.Out = os.Stdout
+	logger.Level = log.DebugLevel
+
+	return logger
 }
