@@ -18,8 +18,8 @@ func NewBaseSolver(log *log.Logger) *BaseSolver {
 }
 
 type Answers struct {
-	Part1Answer int `json:"part1_answer"`
-	Part2Answer int `json:"part2_answer"`
+	Answer1 int `json:"answer1"`
+	Answer2 int `json:"answer2"`
 }
 
 type Solver interface {

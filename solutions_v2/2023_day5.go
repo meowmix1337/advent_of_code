@@ -160,8 +160,8 @@ func (s *Day5Solver) Solve() *Answers {
 	}).Info("Answers")
 
 	return &Answers{
-		Part1Answer: lowestLocation,
-		Part2Answer: lowestLocation2,
+		Answer1: lowestLocation,
+		Answer2: lowestLocation2,
 	}
 }
 

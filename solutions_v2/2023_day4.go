@@ -141,7 +141,7 @@ func (s *Day4Solver) Solve() *Answers {
 	}).Info("Answers")
 
 	return &Answers{
-		Part1Answer: total1,
-		Part2Answer: total2,
+		Answer1: total1,
+		Answer2: total2,
 	}
 }

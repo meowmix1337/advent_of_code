@@ -1,12 +1,19 @@
 <div class="base">
   <div class="center">
-    <mat-grid-list cols="2" rowHeight="2:1">
-      <mat-grid-tile *ngFor="let day of days">
-        <app-advent-card class="advent-card" [day]="day.dayNumber" [title]="day.title" [description]="day.description"></app-advent-card>
-      </mat-grid-tile>
-    </mat-grid-list>
-</div>
+    <mat-tab-group>
+      <mat-tab label="2022">
+        <mat-grid-list cols="2" rowHeight="2:1" *ngFor="let day of days" class="card">
+          <app-advent-card [year]="2022" [day]="day.dayNumber" [title]="day.title" [description]="day.description"></app-advent-card>
+        </mat-grid-list>
+      </mat-tab>
+      <mat-tab label="2023"> 
+        <mat-grid-list cols="2" rowHeight="2:1" *ngFor="let day of days_2023" class="card">
+          <app-advent-card [year]="2023" [day]="day.dayNumber" [title]="day.title" [description]="day.description"></app-advent-card>
+        </mat-grid-list>  
+      </mat-tab>
+    </mat-tab-group>
+  </div>
 
 
 
-<router-outlet></router-outlet>
+  <router-outlet></router-outlet>
