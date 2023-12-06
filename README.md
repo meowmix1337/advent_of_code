@@ -1,6 +1,6 @@
 ### Run Advent 2022 API
 1. `go run cmd/main.go`
-2. Hit `http://localhost:8084/advent/day/{dayNumber}`
+2. Hit `http://localhost:8084/advent/{year}/day/{dayNumber}`
 
 ### Run UI
 1. `cd advent-app`

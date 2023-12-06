@@ -1,19 +1,16 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	log "github.com/sirupsen/logrus"
 
-	"advent/solutions"
+	"advent/controller"
 	solutionsv2 "advent/solutions_v2"
-	"advent/util/responses"
 )
 
 func main() {
@@ -43,63 +40,12 @@ func main() {
 
 	solverService := solutionsv2.NewBaseSolver(logger)
 
-	r.Route("/advent/", func(r chi.Router) {
-		r.Get("/2022/day/{day}", func(w http.ResponseWriter, r *http.Request) {
-			dayNumber, err := strconv.Atoi(chi.URLParam(r, "day"))
-			if err != nil {
-				responses.Error(w, http.StatusInternalServerError, err)
-			}
+	controller2022 := controller.NewController2022(logger)
+	solverCtrl := controller.NewSolverController(logger, solverService)
 
-			year := 2022
-
-			inputFile := fmt.Sprintf("inputfiles/%v/day%v.txt", year, dayNumber)
-
-			logger.Infof("input file: %v; year: %v; day: %v", inputFile, year, dayNumber)
-
-			daySolver := solutions.GetDaySolver(dayNumber, inputFile, logger)
-			if daySolver == nil {
-				http.Error(w, fmt.Sprintf("day %v solver not found!", dayNumber), http.StatusNotFound)
-				return
-			}
-
-			dayAnswers, err := daySolver.Solve()
-			if err != nil {
-				responses.Error(w, http.StatusInternalServerError, err)
-				return
-			}
-
-			responses.JSON(w, http.StatusOK, dayAnswers)
-		})
-
-		r.Get("/2023/day/{day}", func(w http.ResponseWriter, r *http.Request) {
-			dayNumber, err := strconv.Atoi(chi.URLParam(r, "day"))
-			if err != nil {
-				responses.Error(w, http.StatusInternalServerError, err)
-			}
-
-			year := 2023
-
-			inputFile := fmt.Sprintf("inputfiles/%v/day%v.txt", year, dayNumber)
-
-			logger.Infof("input file: %v; year: %v; day: %v", inputFile, year, dayNumber)
-
-			file, err := os.Open(inputFile)
-			if err != nil {
-				responses.Error(w, http.StatusInternalServerError, err)
-				return
-			}
-			defer file.Close()
-
-			daySolver := solutionsv2.GetDaySolver(solverService, dayNumber, file)
-			if daySolver == nil {
-				http.Error(w, fmt.Sprintf("day %v solver not found!", dayNumber), http.StatusNotFound)
-				return
-			}
-
-			dayAnswers := daySolver.Solve()
-
-			responses.JSON(w, http.StatusOK, dayAnswers)
-		})
+	r.Route("/"+controller.APIV1+"/advent/", func(r chi.Router) {
+		r.Get("/2022/{day}", controller2022.Solve2022Day)
+		r.Get("/{year}/{day}", solverCtrl.SolveDay)
 	})
 
 	// start http server
