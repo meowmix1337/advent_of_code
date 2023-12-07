@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  angular-app:
+    build:
+      context: .
+      dockerfile: advent-app/Dockerfile.angular
+    ports:
+      - "4200:4200"
+
+  go-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.go
+    ports:
+      - "8084:8084"
