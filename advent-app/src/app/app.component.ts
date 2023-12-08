@@ -91,5 +91,9 @@ export class AppComponent {
     dayNumber: 7,
     title: 'Camel Cards',
     description: 'What are your winnings!'
+  }, {
+    dayNumber: 8,
+    title: 'Haunted Wasteland',
+    description: 'Least Common Multiple!'
   }];
 }
