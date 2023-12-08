@@ -2,7 +2,6 @@ package solutionsv2
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"sort"
 	"strconv"
@@ -36,7 +35,7 @@ var LabelValuesMap = map[string]int{
 	"A": 13,
 	"K": 12,
 	"Q": 11,
-	"J": 0, // part 2 this is 0, part 1 is 10
+	"J": 10,
 	"T": 9,
 	"9": 8,
 	"8": 7,
@@ -48,21 +47,7 @@ var LabelValuesMap = map[string]int{
 	"2": 1,
 }
 
-var LabelValues = []string{
-	"A",
-	"K",
-	"Q",
-	"J",
-	"T",
-	"9",
-	"8",
-	"7",
-	"6",
-	"5",
-	"4",
-	"3",
-	"2",
-}
+var LabelValues = []string{"A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"}
 
 type CamelHands struct {
 	Hands []*Hand
@@ -102,6 +87,10 @@ func NewHand(handDetails []string) *Hand {
 	}
 }
 
+func (h *Hand) HandleJokerWildCard(hand, highestCardLabel string, jokerCount int) {
+	h.Part2Hand = strings.Replace(hand, "J", highestCardLabel, jokerCount)
+}
+
 func (h *Hand) DetermineHandType(part2 bool) {
 	if !part2 {
 		if h.IsFiveOfKind() {
@@ -134,63 +123,83 @@ func (h *Hand) DetermineHandType(part2 bool) {
 		h.Type = "5K"
 	} else if h.IsFourOfKind() {
 		h.Part2Hand = strings.Replace(h.Hand, "J", h.HighCountLabel, h.JCount)
-		if h.JCount == 1 {
-			h.Type = "5K"
-			return
-		}
-		h.Type = "4K"
+		h.Type = h.GetJokerFourOfKindHandType()
 	} else if h.IsFullHouse() {
 		h.Type = "FH"
 	} else if h.IsThreeOfKind() {
 		h.Part2Hand = strings.Replace(h.Hand, "J", h.HighCountLabel, h.JCount)
-		if h.JCount == 1 {
-			h.Type = "4K"
-			return
-		} else if h.JCount == 2 {
-			h.Type = "5K"
-			return
-		}
-		h.Type = "3K"
+		h.Type = h.GetJokerThreeOfKindHandType()
 	} else if h.IsTwoPairs() {
 		// there can only be 1 J in this case
 		// this would make a FH
-		h.Part2Hand = strings.Replace(h.Hand, "J", h.GetHighestValue(), h.JCount)
-		if h.JCount == 1 {
-			h.Type = "FH"
-			return
-		}
-		h.Type = "2P"
+		h.Part2Hand = strings.Replace(h.Hand, "J", h.GetHighestValue(part2), h.JCount)
+		h.Type = h.GetJokerTwoPairHandType()
 	} else if h.IsPair() {
 		h.Part2Hand = strings.Replace(h.Hand, "J", h.HighCountLabel, h.JCount)
-		if h.JCount == 1 {
-			h.Type = "3K"
-			return
-		} else if h.JCount == 2 {
-			h.Type = "4K"
-			return
-		} else if h.JCount == 3 {
-			h.Type = "5K"
-			return
-		}
-		h.Type = "1P"
+		h.Type = h.GetJokerPairHandType()
 	} else {
-		h.Part2Hand = strings.Replace(h.Hand, "J", h.GetHighestValue(), h.JCount)
-		if h.JCount == 1 {
-			h.Type = "1P"
-			return
-		} else if h.JCount == 2 {
-			h.Type = "3K"
-			return
-		} else if h.JCount == 3 {
-			h.Type = "4K"
-			return
-		} else if h.JCount == 4 || h.JCount == 5 {
-			h.Type = "5K"
-			return
-		}
-		h.Type = "HC"
+		h.Part2Hand = strings.Replace(h.Hand, "J", h.GetHighestValue(part2), h.JCount)
+		h.Type = h.GetJokerHighHandType()
 	}
-	return
+}
+
+func (h *Hand) GetJokerFourOfKindHandType() string {
+	switch h.JCount {
+	case 1:
+		return "5K"
+	default:
+		return "4K"
+	}
+}
+
+func (h *Hand) GetJokerThreeOfKindHandType() string {
+	switch h.JCount {
+	case 1:
+		return "4K"
+	case 2:
+		return "5K"
+	default:
+		return "3K"
+	}
+}
+
+func (h *Hand) GetJokerTwoPairHandType() string {
+	switch h.JCount {
+	case 1:
+		return "FH"
+	default:
+		return "2P"
+	}
+}
+
+func (h *Hand) GetJokerPairHandType() string {
+	switch h.JCount {
+	case 1:
+		return "3K"
+	case 2:
+		return "4K"
+	case 3:
+		return "5K"
+	default:
+		return "1P"
+	}
+}
+
+func (h *Hand) GetJokerHighHandType() string {
+	switch h.JCount {
+	case 1:
+		return "1P"
+	case 2:
+		return "3K"
+	case 3:
+		return "4K"
+	case 4:
+		fallthrough
+	case 5:
+		return "5K"
+	default:
+		return "HC"
+	}
 }
 
 func (h *Hand) IsFullHouse() bool {
@@ -297,7 +306,7 @@ func (h *Hand) CountLabels(part2 bool) {
 	h.LabelCount = labelCount
 }
 
-func customSort(arr []*Hand) {
+func (s Day7Solver) sortHand(arr []*Hand, labelValues map[string]int) {
 	sort.Slice(arr, func(i, j int) bool {
 		hand1 := arr[i]
 		hand2 := arr[j]
@@ -306,10 +315,11 @@ func customSort(arr []*Hand) {
 		for idx := 0; idx < len(hand1.Hand) && idx < len(hand2.Hand); idx++ {
 			char1 := string(hand1.Hand[idx])
 			char2 := string(hand2.Hand[idx])
+
 			switch {
-			case LabelValuesMap[char1] > LabelValuesMap[char2]:
+			case labelValues[char1] > labelValues[char2]:
 				return true
-			case LabelValuesMap[char1] < LabelValuesMap[char2]:
+			case labelValues[char1] < labelValues[char2]:
 				return false
 			}
 		}
@@ -319,12 +329,12 @@ func customSort(arr []*Hand) {
 	})
 }
 
-func (h *Hand) GetHighestValue() string {
+func (h *Hand) GetHighestValue(part2 bool) string {
 	highestValue := -1
 	highestLabel := ""
 	for _, char := range h.Labels {
 		// ignore J
-		if char == "J" {
+		if part2 && char == "J" {
 			continue
 		}
 		if LabelValuesMap[char] > highestValue {
@@ -342,17 +352,51 @@ func (s Day7Solver) Solve() *Answers {
 	total2 := 0
 
 	camelHands := CamelHands{}
+	camelHands2 := CamelHands{}
 	for scanner.Scan() {
 		line := scanner.Text()
 		handDetails := strings.Split(line, " ")
 
 		hand := NewHand(handDetails)
-		hand.CountLabels(true)
-		hand.DetermineHandType(true)
+		hand.CountLabels(false)
+		hand.DetermineHandType(false)
+
+		hand2 := NewHand(handDetails)
+		hand2.CountLabels(true)
+		hand2.DetermineHandType(true)
 
 		camelHands.AppendHand(hand)
+		camelHands2.AppendHand(hand2)
 	}
 
+	// group the hands now
+	part1GroupByType := s.groupHandsByType(camelHands)
+	part2GroupByType := s.groupHandsByType(camelHands2)
+
+	// now we need to determine the rank by going through each group
+	sortedPart1GroupByType := s.sortGroupedHandsByType(part1GroupByType, LabelValuesMap)
+	LabelValuesMap["J"] = 0
+	sortedPart2GroupByType := s.sortGroupedHandsByType(part2GroupByType, LabelValuesMap)
+
+	sortedHandsPart1 := s.generateSortedHands(sortedPart1GroupByType)
+	sortedHandsPart2 := s.generateSortedHands(sortedPart2GroupByType)
+
+	// give rank
+	s.giveRank(sortedHandsPart1)
+	s.giveRank(sortedHandsPart2)
+
+	total1 = s.calculateWinnings(sortedHandsPart1)
+	total2 = s.calculateWinnings(sortedHandsPart2)
+
+	s.Log.Info("answers", "part 1 ", total1, "part 2 ", total2)
+
+	return &Answers{
+		Answer1: total1,
+		Answer2: total2,
+	}
+}
+
+func (s Day7Solver) groupHandsByType(camelHands CamelHands) map[string][]*Hand {
 	// group the hands now
 	groupedTypes := make(map[string][]*Hand)
 	for _, hand := range camelHands.Hands {
@@ -364,36 +408,44 @@ func (s Day7Solver) Solve() *Answers {
 		}
 	}
 
+	return groupedTypes
+}
+
+func (s Day7Solver) sortGroupedHandsByType(groupedHandsByType map[string][]*Hand, labelValues map[string]int) map[string][]*Hand {
 	// now we need to determine the rank by going through each group
-	for _, group := range groupedTypes {
+	for _, group := range groupedHandsByType {
 		// we need to sort each hand in each group based on rules
-		customSort(group)
+		s.sortHand(group, labelValues)
 	}
 
-	sortedHands := make([]*Hand, 0)
-	sortedHands = append(sortedHands, groupedTypes["5K"]...)
-	sortedHands = append(sortedHands, groupedTypes["4K"]...)
-	sortedHands = append(sortedHands, groupedTypes["FH"]...)
-	sortedHands = append(sortedHands, groupedTypes["3K"]...)
-	sortedHands = append(sortedHands, groupedTypes["2P"]...)
-	sortedHands = append(sortedHands, groupedTypes["1P"]...)
-	sortedHands = append(sortedHands, groupedTypes["HC"]...)
+	return groupedHandsByType
+}
 
+func (s Day7Solver) generateSortedHands(sortedGroupedHandsByType map[string][]*Hand) []*Hand {
+	sortedHands := make([]*Hand, 0)
+	sortedHands = append(sortedHands, sortedGroupedHandsByType["5K"]...)
+	sortedHands = append(sortedHands, sortedGroupedHandsByType["4K"]...)
+	sortedHands = append(sortedHands, sortedGroupedHandsByType["FH"]...)
+	sortedHands = append(sortedHands, sortedGroupedHandsByType["3K"]...)
+	sortedHands = append(sortedHands, sortedGroupedHandsByType["2P"]...)
+	sortedHands = append(sortedHands, sortedGroupedHandsByType["1P"]...)
+	sortedHands = append(sortedHands, sortedGroupedHandsByType["HC"]...)
+
+	return sortedHands
+}
+
+func (s Day7Solver) giveRank(sortedHands []*Hand) {
 	// give rank
 	for idx, hand := range sortedHands {
-		s.Log.Info(fmt.Sprintf("%v - %v", hand.Hand, hand.Part2Hand))
 		hand.Rank = len(sortedHands) - idx
 		hand.TotalAmount *= hand.BidAmount
 	}
+}
 
+func (s Day7Solver) calculateWinnings(sortedHands []*Hand) int {
+	winnings := 0
 	for _, hand := range sortedHands {
-		total1 += hand.TotalAmount * hand.Rank
+		winnings += hand.TotalAmount * hand.Rank
 	}
-
-	s.Log.Info("answers", "part 1", total1, "part 2", total2)
-
-	return &Answers{
-		Answer1: total1,
-		Answer2: total2,
-	}
+	return winnings
 }

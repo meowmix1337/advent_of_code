@@ -83,5 +83,13 @@ export class AppComponent {
     dayNumber: 5,
     title: 'If You Give A Seed A Fertilizer',
     description: 'This might take some time'
+  }, {
+    dayNumber: 6,
+    title: 'Wait For It',
+    description: 'Race time!'
+  }, {
+    dayNumber: 7,
+    title: 'Camel Cards',
+    description: 'What are your winnings!'
   }];
 }

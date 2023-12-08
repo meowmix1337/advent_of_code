@@ -1,5 +1,5 @@
 # Use the latest Node image as a base for building the Angular app
-FROM node:latest as angular-builder
+FROM node:21.3.0 as angular-builder
 
 # Set the working directory in the container
 WORKDIR /app/angular
@@ -14,19 +14,13 @@ RUN npm install
 COPY advent-app/ .
 
 # Build the Angular app
-RUN npm run build --prod
+RUN npm run build
 
-# Use a lightweight base image
-FROM alpine:3.14
-
-# Set the working directory in the container
-WORKDIR /app
-
-# Copy the Angular app build from the angular-builder stage
-COPY --from=angular-builder /app/angular/dist ./angular/dist
-
-# Expose port
 EXPOSE 4200
 
-# Command to run the Angular app
-CMD ["npm", "start", "--prefix", "angular"]
+CMD ["npm", "start"]
+
+FROM nginx:alpine
+COPY --from=angular-builder /app/angular/dist/advent-app /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
