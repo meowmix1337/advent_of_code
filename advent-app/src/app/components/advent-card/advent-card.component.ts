@@ -22,6 +22,7 @@ export class AdventCardComponent {
 
   getDayAnswer() {
     this.loading = true;
+    this.error = '';
 
     if (this.year !== null) {
       this.adventAPI.getDayAnswerForYear(this.year, this.day).pipe(
