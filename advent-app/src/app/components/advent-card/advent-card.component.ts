@@ -8,7 +8,7 @@ import { finalize } from 'rxjs/operators';
   styleUrls: ['./advent-card.component.scss']
 })
 
-export class AdventCardComponent implements OnInit {
+export class AdventCardComponent {
   answers: Data | null = null;
   error: string = '';
 
@@ -20,18 +20,10 @@ export class AdventCardComponent implements OnInit {
 
   constructor(private adventAPI: DataService) { }
 
-  ngOnInit() {
+  getDayAnswer() {
     this.loading = true;
 
-    if (this.year == 2022) {
-      this.adventAPI.getDayAnswer(this.day).pipe(
-        finalize(() => this.loading = false)
-      ).subscribe((answers: AdventResponse) => {
-        this.answers = answers.data;
-      }, error => {
-        this.error = error;
-      });
-    } else {
+    if (this.year !== null) {
       this.adventAPI.getDayAnswerForYear(this.year, this.day).pipe(
         finalize(() => this.loading = false)
       ).subscribe((answers: AdventResponse) => {
@@ -39,7 +31,16 @@ export class AdventCardComponent implements OnInit {
       }, error => {
         this.error = error;
       });
+
+      return;
     }
 
+    this.adventAPI.getDayAnswer(this.day).pipe(
+      finalize(() => this.loading = false)
+    ).subscribe((answers: AdventResponse) => {
+      this.answers = answers.data;
+    }, error => {
+      this.error = error;
+    });
   }
 }

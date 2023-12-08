@@ -1,4 +1,4 @@
-<mat-card style="padding: 8px;">
+<mat-card class="card">
   <mat-card-header>
     <mat-card-subtitle>Day {{day}} </mat-card-subtitle>
     <mat-card-title>{{ title }}</mat-card-title>
@@ -6,10 +6,8 @@
   <mat-card-content>
     <p>{{ description }} </p>
     <ng-container *ngIf="error === ''">
-      <b>Part 1:</b>
-      <p><ng-container *ngIf="answers">{{ answers.answer1 }}</ng-container></p>
-      <b>Part 2:</b>
-      <p><ng-container *ngIf="answers">{{ answers.answer2 }}</ng-container></p>
+      <answer [label]="'Part 1'" [answer]="answers?.answer1"></answer>
+      <answer [label]="'Part 2'" [answer]="answers?.answer2"></answer>
     </ng-container>
     <ng-container *ngIf="error !== ''">
       <b>Error:</b>
@@ -17,6 +15,10 @@
     </ng-container>
     <mat-divider></mat-divider>
   </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button class="button-color" (click)="this.getDayAnswer()">GET
+      ANSWER</button>
+  </mat-card-actions>
   <mat-card-footer>
     <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
   </mat-card-footer>
