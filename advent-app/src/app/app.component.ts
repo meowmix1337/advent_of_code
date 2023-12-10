@@ -95,5 +95,9 @@ export class AppComponent {
     dayNumber: 8,
     title: 'Haunted Wasteland',
     description: 'Least Common Multiple!'
+  }, {
+    dayNumber: 9,
+    title: 'Mirage Maintenance',
+    description: 'OMFG freaking negatives'
   }];
 }
