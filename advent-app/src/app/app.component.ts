@@ -99,5 +99,9 @@ export class AppComponent {
     dayNumber: 9,
     title: 'Mirage Maintenance',
     description: 'OMFG freaking negatives'
+  }, {
+    dayNumber: 10,
+    title: 'Pipe Maze',
+    description: 'This one really sucks. part 2 missing'
   }];
 }
